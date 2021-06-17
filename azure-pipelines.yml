@@ -28,7 +28,7 @@ steps:
 - task: SonarCloudPrepare@1
   inputs:
     SonarCloud: 'SonarCloud'
-    organization: 'tanoSEBAS97'
+    organization: 'mercadolibre-dna'
     scannerMode: 'MSBuild'
     projectKey: 'mercadolibre-dna'
     projectName: 'mercadolibre-dna'
