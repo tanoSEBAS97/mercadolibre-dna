@@ -1,0 +1,916 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+ This stack represents components for mercadolibre.dna
+Mappings:
+    Vpc:
+      Id: "vpc-0aa5a0529a8d2f09c"
+    Subnets:       
+      Public1: "subnet-0dde03002bd67645d"
+      Public2: "subnet-02f0768330671190c"
+      Public3: "subnet-0b41a990f2cd7cbbe"
+      Public4: "subnet-0ff869b3abfdb00c6"
+      Public5: "subnet-037a3160c52bc9490"
+      Public6: "subnet-0283590e36657e157"
+    SecurityGroups:
+      WebSecurityGroup: "sg-02bae41baee9b0678"
+    IAM:
+      MasivianWhatsAppBusinessApiGatewayRoleName: "MasivianWhatsAppBusinessApiGatewayRoleLabs"
+      MasivianWhatsAppBusinessEcsAutoScaleRoleName: "MasivianWhatsAppBusinessEcsAutoScaleRoleLabs"
+      MasivianWhatsAppBusinessEcsServiceRoleName: "MasivianWhatsAppBusinessEcsServiceRoleLabs" 
+      MasivianWhatsAppBusinessEcsTaskRoleName: "MasivianWhatsAppBusinessEcsTaskRoleLabs"
+      MasivianWhatsAppBusinessLambdaRoleName: "MasivianWhatsAppBusinessLambdaRoleLabs"
+      MasivianWhatsAppBusinessStepFunctionRoleName: "MasivianWhatsAppBusinessStepFunctionRoleLabs"
+      MasivianWhatsAppBusinessRedshiftRoleName: "MasivianWhatsAppBusinessRedshiftRoleLabs"
+      MasivianWhatsAppBusinessPolicyName: "MasivianWhatsAppBusinessPolicyLabs"
+      MasivianWhatsAppBusinessECSEC2RoleName: "MasivianWhatsappBusinessEC2ECSRoleLabs"
+      MasivianWhatsAppBusinessAutoScalingECSServiceRoleName: "MasivianWhatsAppBusinessAutoScalingECSServiceLabs"
+      MasivianWhatsAppBusinessAutoScalingPolicyName: "MasivianWhatsAppBusinessAutoScalingPolicyLabs"
+      MasivianWhatsAppBusinessFirehoseRoleName: "MasivianWhatsAppBusinessFirehoseRoleLabs"
+    SQS:
+      MasivianWhatsAppBusinessCampaignActivatorSqsName: "MasivianWhatsAppBusinessCampaignActivatorSqsLabs"
+      MasivianWhatsAppBusinessCampaignTranslatorSqsName: "MasivianWhatsAppBusinessCampaignTranslatorSqsLabs"
+      MasivianWhatsAppBusinessEventNotificationDLQName: "MasivianWhatsAppBusinessEventNotificationDLQLabs"
+      MasivianWhatsAppBusinessMessageSenderDLQName: "MasivianWhatsAppBusinessMessageSenderDLQLabs"
+      MasivianWhatsAppBusinessEventProcessorDLQName: "MasivianWhatsAppBusinessEventProcessorDLQLabs"
+      MasivianWhatsAppBusinessEventProcessorSqsName: "MasivianWhatsAppBusinessEventProcessorSqsLabs"
+      MasivianWhatsAppBusinessEventNotificationSqsName: "MasivianWhatsAppBusinessEventNotificationSqsLabs"
+      MasivianWhatsAppBusinessMessageSenderSqsName: "MasivianWhatsAppBusinessMessageSenderSqsLabs"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName: "MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsLabs"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsName: "MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsLabs"
+      MasivianWhatsAppBusinessCampaignCloserSqsName: "MasivianWhatsAppBusinessCampaignCloserSqsLabs"
+      MasivianWhatsAppBusinessOptinSqsName: "MasivianWhatsAppBusinessOptinSqs-Labs"
+      MasivianFileReaderAccountId: "325727549834"
+    ElastiCache:
+      MasivianWhatsappBusinessElasticacheReplicationGroupName: "masivian-whatsapp-business-redis-labs"
+      MasivianWhatsappBusinessElasticCacheSubnetGroupName: "MasivianWhatsappBusinessRedisSubnetGroupLabs"
+      MasivianWhatsappBusinessElasticacheReplicationGroupNumNodes: 1
+      MasivianWhatsappBusinessElasticacheReplicationGroupEngineName: "redis"
+      MasivianWhatsappBusinessElasticacheReplicationGroupEngineVersion: "5.0.6"
+      MasivianWhatsappBusinessElasticacheReplicationGroupNodeType: "cache.t2.micro"
+      MasivianWhatsappBusinessElasticCacheFailOverEnabled: false
+    S3:
+      MasivianWhatsappBusinessBucketName: "masivian-whatsapp-business-media-labs" 
+      MasivianWhatsappBusinessReportsBucketName: "masivian-whatsapp-business-reports-lab"
+      MasivianWhatsappBusinessCloudFrontReportsBucketName: "masivian-whatsapp-business-cloudfront-reports-labs"
+      MasivianWhatsappBusinessFirehoseBucketName: "masivian-whatsapp-business-delivery-stream-labs"
+    Redshift:
+      MasivianWhatsAppBusinessRedshiftClusterName: "masivian-whatsapp-business-redshift-cluster-labs"
+      MasivianWhatsAppBusinessRedshiftDatabaseName: "whatsappbusinessdblabs"
+      MasivianWhatsAppBusinessRedshiftDatabaseUser: "adminuserlabs"
+      MasivianWhatsAppBusinessRedshiftDatabasePassword: "A2eXk4KqvH7EkMN2"
+      MasivianWhatsAppBusinessRedshiftDatabasePort: 5439
+    CloudFront:
+      AccessIdentityPrefix: "access-identity"
+      MasivianWhatsAppBusinessCloudFrontMediaOriginId: "S3-masivian-whatsapp-business-labs"
+      MasivianWhatsAppBusinessCloudFrontReportsOriginId: "S3-masivian-whatsapp-business-cloudfront-reports-labs"
+    Lambda:
+      EnvironmentVariableRipleyIntegrationAuthorizerApiKey: "fGvH8SDDQ17UOKBnFYIcm8PZ2Gbbk9QWI6Mp897c"
+      EnvironmentVariableDataSource: "172.29.21.163"
+      EnvironmentVariableInitialCatalog: "MasivIII"
+      EnvironmentVariablePassword: "Estratec.db."
+      EnvironmentVariableUserId: "sa"
+      EnvironmentVariableEmailRecipient: "ragiraldoram@gmail.com"
+      EnvironmentVariableEmailSender: "Masivian WhatsApp Business<ricardo.alfonso@masivian.com>"
+      EnvironmentVariablePassworApiEmail: "Estratec.2014Pwd"
+      EnvironmentVariableUrlApiEmail: "https://api.masiv.masivian.com/email/v1/delivery"
+      EnvironmentVariableUserApiEmail: "Estratec"
+      EnvironmentVariableExpirationDays: "30"
+      EnvironmentVariableUrlMessageSender: "https://api.gupshup.io/sm/api/v1/msg"
+      EnvironmentVariableEventProcessorWebhookHost: "https://lynn-latam-testing-br-broker-test-vpn.azurewebsites.net/Whatsapp/index?tenant=22&provider=2"
+      EnvironmentVariableSqsFileReader: "https://sqs.us-east-1.amazonaws.com/325727549834/file-reader-trigger"
+      EnvironmentVariableClosedDaysCampaign: "5"
+      EnvironmentVariableApiKeyGupshup: "942936177f90472fc7191e8a315552d4"
+      EnvironmentVariableEndpointUrlBuilderMessageSender: "http://urlbuilder-1228848637.us-east-1.elb.amazonaws.com/shorter"
+      S3BucketLambdaCode: "masivian-whatsapp-business-code"
+      MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLabs"
+      MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLabs.zip"
+      MasivianWhatsAppBusinessAppClientConfigManagerLambdaName: "MasivianWhatsAppBusinessAppClientConfigManagerLabs"
+      MasivianWhatsAppBusinessAppClientConfigManagerLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessAppClientConfigManagerLabs.zip"
+      MasivianWhatsAppBusinessClientProductActivatorLambdaName: "MasivianWhatsAppBusinessClientProductActivatorLabs"
+      MasivianWhatsAppBusinessClientProductActivatorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessClientProductActivatorLabs.zip"
+      MasivianWhatsAppBusinessHsmManagerLambdaName: "MasivianWhatsAppBusinessHsmManagerLabs"
+      MasivianWhatsAppBusinessHsmManagerLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessHsmManagerLabs.zip"
+      MasivianWhatsAppBusinessOptinProcessorLambdaName: "MasivianWhatsAppBusinessOptinProcessorLabs"
+      MasivianWhatsAppBusinessOptinProcessorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessOptinProcessorLabs.zip"
+      MasivianWhatsAppBusinessCampaignManagerLambdaName: "MasivianWhatsAppBusinessCampaignManagerLabs"
+      MasivianWhatsAppBusinessCampaignManagerLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessCampaignManagerLabs.zip"
+      MasivianWhatsAppBusinessETLToS3EventDetailsLambdaName: "MasivianWhatsAppBusinessETLToS3EventDetailsLabs"
+      MasivianWhatsAppBusinessETLToS3EventDetailsLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessETLToS3EventDetailsLabs.zip"
+      MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaName: "MasivianWhatsAppBusinessETLToSummaryEventDetailsLabs"
+      MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessETLToSummaryEventDetailsLabs.zip"
+      MasivianWhatsAppBusinessETLToS3SummaryLambdaName: "MasivianWhatsAppBusinessETLToS3SummaryLabs"
+      MasivianWhatsAppBusinessETLToS3SummaryLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessETLToS3SummaryLabs.zip"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaName: "MasivianWhatsAppBusinessMessageTranslatorLabs"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessMessageTranslatorLabs.zip"
+      MasivianWhatsAppBusinessMessageSenderLambdaName: "MasivianWhatsAppBusinessMessageSenderLabs"
+      MasivianWhatsAppBusinessMessageSenderLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessMessageSenderLabs.zip"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLabs"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLabs.zip"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLabs"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLabs.zip"
+      MasivianWhatsAppBusinessEventNotifierLambdaName: "MasivianWhatsAppBusinessEventNotifierLabs"
+      MasivianWhatsAppBusinessEventNotifierLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessEventNotifierLabs.zip"
+      MasivianWhatsAppBusinessCampaignActivatorLambdaName: "MasivianWhatsAppBusinessCampaignActivatorLabs"
+      MasivianWhatsAppBusinessCampaignActivatorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessCampaignActivatorLabs.zip"
+      MasivianWhatsAppBusinessEventProcessorLambdaName: "MasivianWhatsAppBusinessEventProcessorLabs"
+      MasivianWhatsAppBusinessEventProcessorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessEventProcessorLabs.zip"
+      MasivianWhatsAppBusinessCampaignCloserLambdaName: "MasivianWhatsAppBusinessCampaignCloserLabs"
+      MasivianWhatsAppBusinessCampaignCloserLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessCampaignCloserLabs.zip"
+      MasivianWhatsAppBusinessAuthorizerLambdaName: "MasivianWhatsappBusinessAuthorizerLabs"
+      MasivianWhatsAppBusinessAuthorizerLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessAuthorizer.zip"
+      MasivianWhatsAppBusinessOptinMultipleProcessorLambdaName: "MasivianWhatsAppBusinessOptinMultipleProcessor-Labs"
+      MasivianWhatsAppBusinessOptinMultipleProcessorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusiness.OptinMultipleProcessor.zip"
+      EnvironmentVariableAuthPwd: "MndheTphcXdzZGU0MzJta2po"
+      EnvironmentVariableAuthUrl: "http://2way-autherbalancer-270975869.us-east-1.elb.amazonaws.com/auth?type=api"
+      EnvironmentVariableApiKey: "942936177f90472fc7191e8a315552d4"
+      EnvironmentVariableUrlOptin: "https://api.gupshup.io/sm/api/v1/app/opt/in"
+    APIGateway:
+      MasivianWhatsappBusinessAPIGatewayName: "MasivianWhatsAppBusiness-ApiGateway-Labs"
+      MasivianWhatsappBusinessCoreAPIGatewayName: "MasivianWhatsAppBusinessCore-ApiGateway-Labs"
+      MasivianWhatsappBusinessEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-EventProcessor-ApiGateway-Labs"
+      MasivianWhatsappBusinessRipleyIntegrationEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-Ripley-Integration-MessageSender-ApiGateway-Labs"
+      MasivianWhatsappBusinessRIEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-Ripley-Integration-EventProcessor-ApiGateway-Labs"
+    EventBridge:
+      MasivianWhatsAppBusinessETLToS3EventDetailsRuleName: "MasivianWhatsAppBusinessETLToS3EventDetailsRuleLabs"
+      MasivianWhatsAppBusinessETLToS3SummaryRuleName: "MasivianWhatsAppBusinessETLToS3SummaryRuleLabs"
+      MasivianWhatsAppBusinessETLToSummaryRuleName: "MasivianWhatsAppBusinessETLToSummaryRuleLabs"
+    StepFunction:
+      MasivianWhatsAppBusinessStepFunctionName: "MasivianWhatsAppBusinessCampaignFlowLabs"
+      S3BucketStepFunctionCode: "masivian-whatsapp-business-code"
+      MasivianWhatsAppBusinessStepFunctionCodeKey: "mwb-code/MasivianWhatsAppBusinessCampaignFlowLabsDefinition.json"
+    ECSCluster:
+      MasivianWhatsappBusinessECSClusterName: "Masivian-Whatsapp-Business-Cluster-Labs"
+      MasivianWhatsappBusinessCapacityProviderName: "Masivian-Whatsapp-Business-CP-Labs"
+    ECR:
+      MasivianWhatsappBusinessECRName : "masivian-whatsapp-business-labs"
+      MasivianWhatsappBusinessECRUri: "dkr.ecr.us-east-1.amazonaws.com/masivian-whatsapp-business-labs:latest"
+    ECSTaskDefinition:
+      MasivianWhatsappBusinessTaskCPU: '2048'
+      MasivianWhatsappBusinessTaskMemory: '1961'
+      MasivianWhatsappBusinessAuthenticationPwd: 'MndheTphcXdzZGU0MzJta2po'
+      MasivianWhatsappBusinessAuthenticationUrl: 'http://2way-autherbalancer-270975869.us-east-1.elb.amazonaws.com/auth?type=api'
+      MasivianWhatsappBusinessTaskDefinitionName: "Masivian-Whatsapp-Business-Labs"
+    ECSService:
+      MasivianWhatsappBusinessECSServiceName: "Masivian-Whatsapp-Business-Labs"
+    CloudWatchLogGroups:
+      MasivianWhatsappBusinessECSLogGroupRetentionInDays: 1
+    LoadBalancers:       
+      MasivianWhatsappBusinessLoadBalancerName: "masivian-wb-alb-labs"
+      MasivianWhatsappBusinessTargetGroupName: "masivian-wb-tg-labs"
+      MasivianWhatsappBusinessGroupHCIS: 30
+      MasivianWhatsappBusinessTargetGroupHCTS: 5
+      MasivianWhatsappBusinessGroupHTC: 5
+      MasivianWhatsappBusinessTargetGroupPort: 80
+      MasivianWhatsappBusinessTargetGroupUTC: 2
+      MasivianWhatsappBusinessLoadBalancerListenerPort: 80
+    AMIS:
+      MasivianWhatsappBusinessECSAmiId: 'ami-05250bd90f5750ed7'
+    AutoScaling:
+      MasivianWhatsappBusinessAutoScalingGroupName: 'masivian-wb-asg-labs'
+      MasivianWhatsappBusinessLaunchConfigurationName: "masivian-wb-lc-labs"
+    AutoScalingPolicies:
+      MasivianWhatsappBusinessScaleOutPolicyName: "MasivianWhatsappBusinessScaleOutPolicyLabs"
+      MasivianWhatsappBusinessScaleInPolicyName:  "MasivianWhatsappBusinessScaleInPolicyLabs"
+    CloudWatchAlarms:
+      MasivianWhatsappBusinessScaleOutAlarmName: "MasivianWhatsappBusinessScaleOutAlarmLabs"
+      MasivianWhatsappBusinessScaleOutAlarmPeriod: 60
+      MasivianWhatsappBusinessScaleOutAlarmThreshold: 70 
+      MasivianWhatsappBusinessScaleOutAlarmEvaluationPeriods: 1
+      MasivianWhatsappBusinessScaleInAlarmName: "MasivianWhatsappBusinessScaleInAlarmLabs"
+      MasivianWhatsappBusinessScaleInAlarmPeriod: 300
+      MasivianWhatsappBusinessScaleInAlarmThreshold: 25
+      MasivianWhatsappBusinessScaleInAlarmEvaluationPeriods: 1
+    WAF:
+      MasivianWhatsAppBusinessWAFName: "MasivianWhatsAppBusinessGupshupApiLabs"
+      MasivianWhatsAppBusinessWafWebAclName: "MasivianWhatsappBusinessWAFLabs"
+    Firehose:
+      MasivianWhatsAppBusinessDeliveryStreamName: "MasivianWhatsAppBusinessFirehoseLabs"
+      MasivianWhatsAppBusinessDeliveryStreamCopyOptions: "json 's3://masivian-whatsapp-business-delivery-stream-labs/jsonpaths.json' region 'us-east-1' ENCODING AS UTF8 timeformat 'auto' dateformat 'auto' COMPUPDATE OFF"
+      MasivianWhatsAppBusinessDeliveryStreamRedshiftTable: "event_details"
+      MasivianWhatsAppBusinessDeliveryStreamPrefixS3: "event-details/"
+  Prod:
+    Vpc:
+      Id: "vpc-0f7e7caed20d10af2"
+    Subnets:
+      Private1: "subnet-01c243918852883e0"
+      Private2: "subnet-00d653d844a108c8c"
+      Private3: "subnet-002e13f73404241f3"
+      Private4: "subnet-09efa874851ea7361"
+      Private5: "subnet-02d1ed7d65d6d491b"
+      Private6: "subnet-0f7e3da08b2da7833"     
+      Public1: "subnet-0d167d737fc8b4d1a"
+      Public2: "subnet-00bbcd40b43a4f19b"
+      Public3: "subnet-078db93ec7ab7a65b"
+      Public4: "subnet-0e997db23f9d035a4"
+      Public5: "subnet-0bfa086ed0a47faae"
+      Public6: "subnet-0e7e5767fe71f6c95"
+    SecurityGroups:
+      CommonDataAccessId: "sg-019f24301421e9370"
+      WebAppAccessId: "sg-086507eb848444779"
+      PrivateAppAccessId: "sg-0981a471968fdfc67"
+      LoadBalancerWebAccessId: "sg-0fbf5a93c544359e9"
+      OsAccessId: "sg-014d7cef761bc93f3"  
+    IAM:
+      MasivianWhatsAppBusinessApiGatewayRoleName: "MasivianWhatsAppBusinessApiGatewayRole"
+      MasivianWhatsAppBusinessEcsAutoScaleRoleName: "MasivianWhatsAppBusinessEcsAutoScaleRole"
+      MasivianWhatsAppBusinessEcsServiceRoleName: "MasivianWhatsAppBusinessEcsServiceRole" 
+      MasivianWhatsAppBusinessEcsTaskRoleName: "MasivianWhatsAppBusinessEcsTaskRole"
+      MasivianWhatsAppBusinessLambdaRoleName: "MasivianWhatsAppBusinessLambdaRole"
+      MasivianWhatsAppBusinessStepFunctionRoleName: "MasivianWhatsAppBusinessStepFunctionRole"
+      MasivianWhatsAppBusinessRedshiftRoleName: "MasivianWhatsAppBusinessRedshiftRole"
+      MasivianWhatsAppBusinessPolicyName: "MasivianWhatsAppBusinessPolicy"
+      MasivianWhatsAppBusinessECSEC2RoleName: "MasivianWhatsappBusinessEC2ECSRole"
+      MasivianWhatsAppBusinessAutoScalingECSServiceRoleName: "MasivianWhatsAppBusinessAutoScalingECSServiceRole"
+      MasivianWhatsAppBusinessAutoScalingPolicyName: "MasivianWhatsAppBusinessAutoScalingPolicy"
+      MasivianWhatsAppBusinessFirehoseRoleName: "MasivianWhatsAppBusinessFirehoseRole"
+    SQS:
+      MasivianWhatsAppBusinessCampaignActivatorSqsName: "MasivianWhatsAppBusinessCampaignActivatorSqs"
+      MasivianWhatsAppBusinessCampaignTranslatorSqsName: "MasivianWhatsAppBusinessCampaignTranslatorSqs"
+      MasivianWhatsAppBusinessEventNotificationDLQName: "MasivianWhatsAppBusinessEventNotificationDLQ"
+      MasivianWhatsAppBusinessMessageSenderDLQName: "MasivianWhatsAppBusinessMessageSenderDLQ"
+      MasivianWhatsAppBusinessEventProcessorDLQName: "MasivianWhatsAppBusinessEventProcessorDLQ"
+      MasivianWhatsAppBusinessEventProcessorSqsName: "MasivianWhatsAppBusinessEventProcessorSqs"
+      MasivianWhatsAppBusinessEventNotificationSqsName: "MasivianWhatsAppBusinessEventNotificationSqs"
+      MasivianWhatsAppBusinessMessageSenderSqsName: "MasivianWhatsAppBusinessMessageSenderSqs"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName: "MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqs"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsName: "MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqs"
+      MasivianWhatsAppBusinessCampaignCloserSqsName: "MasivianWhatsAppBusinessCampaignCloserSqs"
+      MasivianWhatsAppBusinessOptinSqsName: "MasivianWhatsAppBusinessOptinSqs"
+      MasivianFileReaderAccountId: "382887829943"
+    ElastiCache:
+      MasivianWhatsappBusinessElasticacheReplicationGroupName: "masivian-wb-redis-prod"
+      MasivianWhatsappBusinessElasticCacheSubnetGroupName: "MasivianWhatsappBusinessRedisSGProd"
+      MasivianWhatsappBusinessElasticacheReplicationGroupNumNodes: 1
+      MasivianWhatsappBusinessElasticacheReplicationGroupEngineName: "redis"
+      MasivianWhatsappBusinessElasticacheReplicationGroupEngineVersion: "5.0.6"
+      MasivianWhatsappBusinessElasticacheReplicationGroupNodeType: "cache.t2.micro"
+      MasivianWhatsappBusinessElasticCacheFailOverEnabled: false
+    S3:
+      MasivianWhatsappBusinessBucketName: "masivian-whatsapp-business-media-prod" 
+      MasivianWhatsappBusinessReportsBucketName: "masivian-whatsapp-business-reports-prod"
+      MasivianWhatsappBusinessCloudFrontReportsBucketName: "masivian-whatsapp-business-cloudfront-reports-prod"
+      MasivianWhatsappBusinessFirehoseBucketName: "masivian-whatsapp-business-delivery-stream-prod"
+    Redshift:
+      MasivianWhatsAppBusinessRedshiftClusterName: "masivian-whatsapp-business-redshift-cluster"
+      MasivianWhatsAppBusinessRedshiftDatabaseName: "whatsappbusinessdb"
+      MasivianWhatsAppBusinessRedshiftDatabaseUser: "adminuser"
+      MasivianWhatsAppBusinessRedshiftDatabasePassword: "A2eXk4KqvH7EkMN2"
+      MasivianWhatsAppBusinessRedshiftDatabasePort: 5439
+    CloudFront:
+      AccessIdentityPrefix: "access-identity"
+      MasivianWhatsAppBusinessCloudFrontMediaOriginId: "S3-masivian-whatsapp-business"
+      MasivianWhatsAppBusinessCloudFrontReportsOriginId: "S3-masivian-whatsapp-business-cloudfront-reports" 
+    Lambda:
+      EnvironmentVariableRipleyIntegrationAuthorizerApiKey: "fGvH8SDDQ17UOKBnFYIcm8PZ2Gbbk9QWI6Mp897c"
+      EnvironmentVariableDataSource: "172.27.7.20"
+      EnvironmentVariableInitialCatalog: "MasivIII"
+      EnvironmentVariablePassword: "Estratec.db."
+      EnvironmentVariableUserId: "sa"
+      EnvironmentVariableEmailRecipient: "ragiraldoram@gmail.com"
+      EnvironmentVariableEmailSender: "Masivian WhatsApp Business<ricardo.alfonso@masivian.com>"
+      EnvironmentVariablePassworApiEmail: "Estratec.2014Pwd"
+      EnvironmentVariableUrlApiEmail: "https://api.masiv.masivian.com/email/v1/delivery"
+      EnvironmentVariableUserApiEmail: "Estratec"
+      EnvironmentVariableExpirationDays: "30"
+      EnvironmentVariableUrlMessageSender: "https://api.gupshup.io/sm/api/v1/msg"
+      EnvironmentVariableEventProcessorWebhookHost: "https://lynn-latam-testing-br-broker-test-vpn.azurewebsites.net/Whatsapp/index?tenant=22&provider=2"
+      EnvironmentVariableSqsFileReader: "https://sqs.us-east-1.amazonaws.com/382887829943/file-reader-trigger"
+      EnvironmentVariableClosedDaysCampaign: "5"
+      EnvironmentVariableApiKeyGupshup: "942936177f90472fc7191e8a315552d4"
+      EnvironmentVariableEndpointUrlBuilderMessageSender: "http://internal-masivianurlshortenerbuilder-93720985.us-east-1.elb.amazonaws.com/shorter"
+      S3BucketLambdaCode: "masivian-whatsapp-business-code-prod"
+      MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationAuthorizer"
+      MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaCodeKey: "MasivianWhatsAppBusinessRipleyIntegrationAuthorizer.zip"
+      MasivianWhatsAppBusinessAppClientConfigManagerLambdaName: "MasivianWhatsAppBusinessAppClientConfigManager"
+      MasivianWhatsAppBusinessAppClientConfigManagerLambdaCodeKey: "MasivianWhatsAppBusinessAppClientConfigManager.zip"
+      MasivianWhatsAppBusinessClientProductActivatorLambdaName: "MasivianWhatsAppBusinessClientProductActivator"
+      MasivianWhatsAppBusinessClientProductActivatorLambdaCodeKey: "MasivianWhatsAppBusinessClientProductActivator.zip"
+      MasivianWhatsAppBusinessHsmManagerLambdaName: "MasivianWhatsAppBusinessHsmManager"
+      MasivianWhatsAppBusinessHsmManagerLambdaCodeKey: "MasivianWhatsAppBusinessHsmManager.zip"
+      MasivianWhatsAppBusinessCampaignManagerLambdaName: "MasivianWhatsAppBusinessCampaignManager"
+      MasivianWhatsAppBusinessCampaignManagerLambdaCodeKey: "MasivianWhatsAppBusinessCampaignManager.zip"
+      MasivianWhatsAppBusinessETLToS3EventDetailsLambdaName: "MasivianWhatsAppBusinessETLToS3EventDetails"
+      MasivianWhatsAppBusinessETLToS3EventDetailsLambdaCodeKey: "MasivianWhatsAppBusinessETLToS3EventDetails.zip"
+      MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaName: "MasivianWhatsAppBusinessETLToSummaryEventDetails"
+      MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaCodeKey: "MasivianWhatsAppBusinessETLToSummaryEventDetails.zip"
+      MasivianWhatsAppBusinessETLToS3SummaryLambdaName: "MasivianWhatsAppBusinessETLToS3Summary"
+      MasivianWhatsAppBusinessETLToS3SummaryLambdaCodeKey: "MasivianWhatsAppBusinessETLToS3Summary.zip"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaName: "MasivianWhatsAppBusinessMessageTranslator"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaCodeKey: "MasivianWhatsAppBusinessMessageTranslator.zip"
+      MasivianWhatsAppBusinessMessageSenderLambdaName: "MasivianWhatsAppBusinessMessageSender"
+      MasivianWhatsAppBusinessMessageSenderLambdaCodeKey: "MasivianWhatsAppBusinessMessageSender.zip"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationMessageSender"
+      MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaCodeKey: "MasivianWhatsAppBusinessRipleyIntegrationMessageSender.zip"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaName: "MasivianWhatsAppBusinessRipleyIntegrationEventProcessor"
+      MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaCodeKey: "MasivianWhatsAppBusinessRipleyIntegrationEventProcessor.zip"
+      MasivianWhatsAppBusinessEventNotifierLambdaName: "MasivianWhatsAppBusinessEventNotifier"
+      MasivianWhatsAppBusinessEventNotifierLambdaCodeKey: "MasivianWhatsAppBusinessEventNotifier.zip"
+      MasivianWhatsAppBusinessCampaignActivatorLambdaName: "MasivianWhatsAppBusinessCampaignActivator"
+      MasivianWhatsAppBusinessCampaignActivatorLambdaCodeKey: "MasivianWhatsAppBusinessCampaignActivator.zip"
+      MasivianWhatsAppBusinessEventProcessorLambdaName: "MasivianWhatsAppBusinessEventProcessor"
+      MasivianWhatsAppBusinessEventProcessorLambdaCodeKey: "MasivianWhatsAppBusinessEventProcessor.zip"
+      MasivianWhatsAppBusinessCampaignCloserLambdaName: "MasivianWhatsAppBusinessCampaignCloser"
+      MasivianWhatsAppBusinessCampaignCloserLambdaCodeKey: "MasivianWhatsAppBusinessCampaignCloser.zip"
+      MasivianWhatsAppBusinessAuthorizerLambdaName: "MasivianWhatsappBusinessAuthorizerLabs"
+      MasivianWhatsAppBusinessAuthorizerLambdaCodeKey: "MasivianWhatsAppBusinessAuthorizer.zip"
+      MasivianWhatsAppBusinessOptinProcessorLambdaName: "MasivianWhatsAppBusinessOptinProcessor"
+      MasivianWhatsAppBusinessOptinProcessorLambdaCodeKey: "mwb-code/MasivianWhatsAppBusinessOptinProcessor.zip"
+      EnvironmentVariableAuthPwd: "MndheTphcXdzZGU0MzJta2po"
+      EnvironmentVariableAuthUrl: "http://2way-autherbalancer-270975869.us-east-1.elb.amazonaws.com/auth?type=api"
+      EnvironmentVariableApiKey: "942936177f90472fc7191e8a315552d4"
+      EnvironmentVariableUrlOptin: "https://api.gupshup.io/sm/api/v1/app/opt/in"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaName: "MasivianWhatsAppBusinessOptinMultipleProcessor"
+      MasivianWhatsAppBusinessMessageTranslatorLambdaCodeKey: "MasivianWhatsAppBusiness.OptinMultipleProcessor.zip"
+    APIGateway:
+      MasivianWhatsappBusinessAPIGatewayName: "MasivianWhatsAppBusiness-ApiGateway"
+      MasivianWhatsappBusinessCoreAPIGatewayName: "MasivianWhatsAppBusinessCore-ApiGateway"
+      MasivianWhatsappBusinessEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-EventProcessor-ApiGateway"
+      MasivianWhatsappBusinessRipleyIntegrationEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-Ripley-Integration-EventProcessor-ApiGateway"
+      MasivianWhatsappBusinessRIEventProcessorAPIGatewayName: "MasivianWhatsAppBusiness-Ripley-Integration-EP-ApiGateway"
+    EventBridge:
+      MasivianWhatsAppBusinessETLToS3EventDetailsRuleName: "MasivianWhatsAppBusinessETLToS3EventDetailsRule"
+      MasivianWhatsAppBusinessETLToS3SummaryRuleName: "MasivianWhatsAppBusinessETLToS3SummaryRule"
+      MasivianWhatsAppBusinessETLToSummaryRuleName: "MasivianWhatsAppBusinessETLToSummaryRule"
+    StepFunction:
+      MasivianWhatsAppBusinessStepFunctionName: "MasivianWhatsAppBusinessCampaignFlowProd"
+      S3BucketStepFunctionCode: "masivian-whatsapp-business-code-prod"
+      MasivianWhatsAppBusinessStepFunctionCodeKey: "MasivianWhatsAppBusinessCampaignFlowDefinition.json"
+    ECSCluster:
+      MasivianWhatsappBusinessECSClusterName: "Masivian-Whatsapp-Business-Cluster"
+      MasivianWhatsappBusinessCapacityProviderName: "Masivian-Whatsapp-Business-CP"
+    ECR:
+      MasivianWhatsappBusinessECRName : "masivian-whatsapp-business"
+      MasivianWhatsappBusinessECRUri: "dkr.ecr.us-east-1.amazonaws.com/masivian-whatsapp-business:latest"
+    ECSTaskDefinition:
+      MasivianWhatsappBusinessTaskCPU: '2048'
+      MasivianWhatsappBusinessTaskMemory: '1961'
+      MasivianWhatsappBusinessAuthenticationPwd: 'MndheTphcXdzZGU0MzJta2po'
+      MasivianWhatsappBusinessAuthenticationUrl: 'http://2way-autherbalancer-270975869.us-east-1.elb.amazonaws.com/auth?type=api'
+      MasivianWhatsappBusinessTaskDefinitionName: "Masivian-Whatsapp-Business"
+    ECSService:
+      MasivianWhatsappBusinessECSServiceName: "Masivian-Whatsapp-Business"
+    loudWatchLogGroups:
+      MasivianWhatsappBusinessECSLogGroupRetentionInDays: 1
+    LoadBalancers:       
+      MasivianWhatsappBusinessLoadBalancerName: "masivian-wb-alb-prod"
+      MasivianWhatsappBusinessTargetGroupName: "masivian-wb-tg-prod"
+      MasivianWhatsappBusinessGroupHCIS: 30
+      MasivianWhatsappBusinessTargetGroupHCTS: 5
+      MasivianWhatsappBusinessGroupHTC: 5
+      MasivianWhatsappBusinessTargetGroupPort: 80
+      MasivianWhatsappBusinessTargetGroupUTC: 2
+      MasivianWhatsappBusinessLoadBalancerListenerPort: 80
+    AMIS:
+      MasivianWhatsappBusinessECSAmiId: 'ami-05250bd90f5750ed7'
+    AutoScaling:
+      MasivianWhatsappBusinessAutoScalingGroupName: 'masivian-wb-asg'
+      MasivianWhatsappBusinessLaunchConfigurationName: "masivian-wb-lc"
+    AutoScalingPolicies:
+      MasivianWhatsappBusinessScaleOutPolicyName: "MasivianWhatsappBusinessScaleOutPolicy"
+      MasivianWhatsappBusinessScaleInPolicyName:  "MasivianWhatsappBusinessScaleInPolicy"
+    CloudWatchAlarms:
+      MasivianWhatsappBusinessScaleOutAlarmName: "MasivianWhatsappBusinessScaleOutAlarm"
+      MasivianWhatsappBusinessScaleOutAlarmPeriod: 60
+      MasivianWhatsappBusinessScaleOutAlarmThreshold: 70 
+      MasivianWhatsappBusinessScaleOutAlarmEvaluationPeriods: 1
+      MasivianWhatsappBusinessScaleInAlarmName: "MasivianWhatsappBusinessScaleInAlarm"
+      MasivianWhatsappBusinessScaleInAlarmPeriod: 300
+      MasivianWhatsappBusinessScaleInAlarmThreshold: 25
+      MasivianWhatsappBusinessScaleInAlarmEvaluationPeriods: 1
+    WAF:
+      MasivianWhatsAppBusinessWAFName: "MasivianWhatsAppBusinessGupshupApi"
+      MasivianWhatsAppBusinessWafWebAclName: "MasivianWhatsappBusinessWAF"
+    CloudWatchLogGroups:
+      MasivianWhatsappBusinessECSLogGroupRetentionInDays: 1
+    Firehose:
+      MasivianWhatsAppBusinessDeliveryStreamName: "MasivianWhatsAppBusinessFirehoseProd"
+      MasivianWhatsAppBusinessDeliveryStreamCopyOptions: "json 's3://masivian-whatsapp-business-delivery-stream-prod/jsonpaths.json' region 'us-east-1' ENCODING AS UTF8 timeformat 'auto' dateformat 'auto' COMPUPDATE OFF"
+      MasivianWhatsAppBusinessDeliveryStreamRedshiftTable: "event_details"
+      MasivianWhatsAppBusinessDeliveryStreamPrefixS3: "event-details/"
+Resources:
+  IAMStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/IAM/MasivianWhatsappBusinessIAM.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/IAM/MasivianWhatsappBusinessIAM.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessApiGatewayRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessApiGatewayRoleName]
+        MasivianWhatsAppBusinessEcsAutoScaleRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessEcsAutoScaleRoleName]
+        MasivianWhatsAppBusinessEcsServiceRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessEcsServiceRoleName]
+        MasivianWhatsAppBusinessEcsTaskRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessEcsTaskRoleName]
+        MasivianWhatsAppBusinessLambdaRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessLambdaRoleName]
+        MasivianWhatsAppBusinessStepFunctionRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessStepFunctionRoleName]
+        MasivianWhatsAppBusinessRedshiftRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessRedshiftRoleName]
+        MasivianWhatsAppBusinessPolicyName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessPolicyName]
+        MasivianWhatsAppBusinessECSEC2RoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessECSEC2RoleName]
+        MasivianWhatsAppBusinessAutoScalingECSServiceRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessAutoScalingECSServiceRoleName]
+        MasivianWhatsAppBusinessAutoScalingPolicyName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessAutoScalingPolicyName]
+        MasivianWhatsAppBusinessFirehoseRoleName: !FindInMap [!Ref DeployEnviroment, IAM, MasivianWhatsAppBusinessFirehoseRoleName]
+  SQSStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/SQS/MasivianWhatsappBusinessSQS.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/SQS/MasivianWhatsappBusinessSQS.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessCampaignActivatorSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessCampaignActivatorSqsName]
+        MasivianWhatsAppBusinessCampaignTranslatorSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessCampaignTranslatorSqsName]
+        MasivianWhatsAppBusinessEventNotificationDLQName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventNotificationDLQName]
+        MasivianWhatsAppBusinessMessageSenderDLQName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessMessageSenderDLQName]
+        MasivianWhatsAppBusinessEventProcessorDLQName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventProcessorDLQName]
+        MasivianWhatsAppBusinessEventProcessorSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventProcessorSqsName]
+        MasivianWhatsAppBusinessEventNotificationSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventNotificationSqsName]
+        MasivianWhatsAppBusinessMessageSenderSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessMessageSenderSqsName]
+        MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName]
+        MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsName]
+        MasivianWhatsAppBusinessCampaignCloserSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessCampaignCloserSqsName]
+        MasivianWhatsAppBusinessOptinSqsName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessOptinSqsName]
+        MasivianFileReaderAccountId: !FindInMap [!Ref DeployEnviroment, SQS, MasivianFileReaderAccountId]
+  ElasticCacheStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/ElasticCache/MasivianWhatsappBusinessElasticCache.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/ElasticCache/MasivianWhatsappBusinessElasticCache.yml"]
+      Parameters:
+        MasivianWhatsappBusinessElasticacheReplicationGroupName: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticacheReplicationGroupName]
+        MasivianWhatsappBusinessElasticacheReplicationGroupEngineName: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticacheReplicationGroupEngineName]
+        MasivianWhatsappBusinessElasticacheReplicationGroupEngineVersion: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticacheReplicationGroupEngineVersion]
+        MasivianWhatsappBusinessElasticacheReplicationGroupNodeType: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticacheReplicationGroupNodeType]
+        MasivianWhatsappBusinessElasticacheReplicationGroupNumNodes: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticacheReplicationGroupNumNodes]
+        MasivianWhatsappBusinessElasticCacheSubnetGroupName: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticCacheSubnetGroupName]
+        MasivianWhatsappBusinessElasticCacheFailOverEnabled: !FindInMap [!Ref DeployEnviroment, ElastiCache, MasivianWhatsappBusinessElasticCacheFailOverEnabled]
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, CommonDataAccessId]
+  S3tacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/S3/MasivianWhatsappBusinessS3.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/S3/MasivianWhatsappBusinessS3.yml"]
+      Parameters:
+        MasivianWhatsappBusinessBucketName: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessBucketName]      
+        MasivianWhatsappBusinessReportsBucketName: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessReportsBucketName]
+        MasivianWhatsappBusinessCloudFrontReportsBucketName: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessCloudFrontReportsBucketName]
+        MasivianWhatsappBusinessFirehoseBucketName: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessFirehoseBucketName]
+  RedshiftStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/Redshift/MasivianWhatsappBusinessRedshift.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/Redshift/MasivianWhatsappBusinessRedshift.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessRedshiftClusterName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftClusterName]
+        MasivianWhatsAppBusinessRedshiftDatabaseName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName]
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, PrivateAppAccessId ]
+        MasivianWhatsAppBusinessRedshiftRole: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessRedshiftRoleArn
+        MasivianWhatsAppBusinessRedshiftDatabaseUser: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        MasivianWhatsAppBusinessRedshiftDatabasePassword: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        MasivianWhatsAppBusinessRedshiftDatabasePort: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePort]
+  StepFunctionStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/StepFunction/MasivianWhatsappBusinessStepFunction.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/StepFunction/MasivianWhatsappBusinessStepFunction.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessStepFunctionName: !FindInMap [!Ref DeployEnviroment, StepFunction, MasivianWhatsAppBusinessStepFunctionName]
+        S3BucketStepFunctionCode: !FindInMap [!Ref DeployEnviroment, StepFunction, S3BucketStepFunctionCode]
+        MasivianWhatsAppBusinessStepFunctionCodeKey: !FindInMap [!Ref DeployEnviroment, StepFunction, MasivianWhatsAppBusinessStepFunctionCodeKey]
+        MasivianWhatsAppBusinessStepFunctionRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessStepFunctionRoleArn
+  CloudFrontStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/CloudFront/MasivianWhatsappBusinessCloudFront.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/CloudFront/MasivianWhatsappBusinessCloudFront.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessCloudFrontMediaOriginId: !FindInMap [!Ref DeployEnviroment, CloudFront, MasivianWhatsAppBusinessCloudFrontMediaOriginId]
+        MasivianWhatsAppBusinessCloudFrontMediaOriginName: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessBucketDomain
+        MasivianWhatsAppBusinessCloudFrontReportsOriginId: !FindInMap [!Ref DeployEnviroment, CloudFront, MasivianWhatsAppBusinessCloudFrontReportsOriginId]
+        MasivianWhatsAppBusinessCloudFrontReportsOriginName: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessCloudFrontReportsBucketDomain
+        MasivianWhatsappBusinessCloudFrontMediaOriginAccessIdentityName: !Join [ "-", [ !FindInMap [!Ref DeployEnviroment, CloudFront, AccessIdentityPrefix], !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessBucketDomain] ]
+        MasivianWhatsappBusinessCloudFrontReportOriginAccessIdentityName: !Join [ "-", [ !FindInMap [!Ref DeployEnviroment, CloudFront, AccessIdentityPrefix], !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessCloudFrontReportsBucketDomain] ]
+  S3PolicyStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/S3/MasivianWhatsappBusinessS3Policy.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/S3/MasivianWhatsappBusinessS3Policy.yml"]
+      Parameters:
+        MasivianWhatsappBusinessMediaBucketName: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessBucketId
+        MasivianWhatsAppBusinessMediaCloudFrontName: !Join [ " ", [ "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity", !GetAtt CloudFrontStack.Outputs.MasivianWhatsappBusinessCloudFrontMediaOriginAccessIdentityId] ]
+        MasivianWhatsappBusinessReportBucketName: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessCloudFrontReportsBucketId
+        MasivianWhatsAppBusinessReportCloudFrontName: !Join [ " ", [ "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity", !GetAtt CloudFrontStack.Outputs.MasivianWhatsappBusinessCloudFrontReportOriginAccessIdentityId] ]
+  LambdaSqsStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaSqs.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaSqs.yml"]
+      Parameters:
+        EnvironmentVariableDbHost: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterAddress
+        EnvironmentVariableDbName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName]
+        EnvironmentVariableDbPassword: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        EnvironmentVariableDbPort: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterPort
+        EnvironmentVariableDbUser: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        EnvironmentVariableRedisHost: !Join [ ":", [ !GetAtt ElasticCacheStacks.Outputs.MasivianWhatsappBusinessElasticacheGroupPrimaryEndPointAddress, !GetAtt ElasticCacheStacks.Outputs.MasivianWhatsappBusinessElasticacheGroupPort] ] 
+        EnvironmentVariableSqsFileReaderTarget: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignTranslatorSqsUrl
+        EnvironmentVariableSqsMessageSender: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessMessageSenderSqsUrl
+        EnvironmentVariableBaseCdn:  !Join [ "/", [ "https:/", !GetAtt CloudFrontStack.Outputs.MasivianWhatsappBusinessMediaCloudFrontName] ]
+        EnvironmentVariableMediaBucket: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessBucketId
+        EnvironmentVariableExpirationDays: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableExpirationDays]
+        EnvironmentVariableUrlMessageSender: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableUrlMessageSender]
+        EnvironmentVariableUrlSqsMessageSender: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessMessageSenderSqsUrl
+        EnvironmentVariableEventProcessorWebhookHost: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableEventProcessorWebhookHost]
+        EnvironmentVariableSqsFileReader: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableSqsFileReader]
+        EnvironmentVariableSqsUrl: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessEventNotificationSqsUrl
+        EnvironmentVariableClosedDaysCampaign: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableClosedDaysCampaign] 
+        EnvironmentVariableStateMachine: !GetAtt StepFunctionStacks.Outputs.MasivianWhatsAppBusinessStepFunctionArn
+        EnvironmentVariableQueueCampaignCloser: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignCloserSqsUrl
+        EnvironmentVariableEndpointUrlBuilderMessageSender: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableEndpointUrlBuilderMessageSender]
+        EnvironmentVariableDeliveryStreamMessageSender : !FindInMap [!Ref DeployEnviroment, Firehose, MasivianWhatsAppBusinessDeliveryStreamName]
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, WebAppAccessId]
+        S3BucketLambdaCode: !FindInMap [!Ref DeployEnviroment, Lambda, S3BucketLambdaCode]
+        LambdaRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessLambdaRoleArn
+        MasivianWhatsAppBusinessMessageTranslatorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessMessageTranslatorLambdaName]
+        MasivianWhatsAppBusinessMessageTranslatorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessMessageTranslatorLambdaCodeKey]
+        MasivianWhatsAppBusinessMessageSenderLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessMessageSenderLambdaName]
+        MasivianWhatsAppBusinessMessageSenderLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessMessageSenderLambdaCodeKey]
+        MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaName]
+        MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaCodeKey]
+        MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaName]
+        MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaCodeKey]
+        MasivianWhatsAppBusinessEventNotifierLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessEventNotifierLambdaName]
+        MasivianWhatsAppBusinessEventNotifierLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessEventNotifierLambdaCodeKey]
+        MasivianWhatsAppBusinessCampaignActivatorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignActivatorLambdaName]
+        MasivianWhatsAppBusinessCampaignActivatorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignActivatorLambdaCodeKey]
+        MasivianWhatsAppBusinessEventProcessorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessEventProcessorLambdaName]
+        MasivianWhatsAppBusinessEventProcessorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessEventProcessorLambdaCodeKey]
+        MasivianWhatsAppBusinessCampaignCloserLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignCloserLambdaName]
+        MasivianWhatsAppBusinessCampaignCloserLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignCloserLambdaCodeKey]
+        MasivianWhatsAppBusinessOptinMultipleProcessorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessOptinMultipleProcessorLambdaCodeKey]
+        MasivianWhatsAppBusinessOptinMultipleProcessorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessOptinMultipleProcessorLambdaName]
+  LambdaApiGatewayStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaApiGateway.yml"]
+      Parameters:
+        EnvironmentVariableRipleyIntegrationAuthorizerApiKey: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableRipleyIntegrationAuthorizerApiKey]
+        EnvironmentVariableDbHost: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterAddress
+        EnvironmentVariableDbName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName]
+        EnvironmentVariableDbPassword: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        EnvironmentVariableDbPort: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterPort
+        EnvironmentVariableDbUser: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        EnvironmentVariableDataSource: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableDataSource]
+        EnvironmentVariableInitialCatalog: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableInitialCatalog]
+        EnvironmentVariablePassword: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariablePassword]
+        EnvironmentVariableUserId: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableUserId]
+        EnvironmentVariableEmailRecipient: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableEmailRecipient]
+        EnvironmentVariableEmailSender: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableEmailSender]
+        EnvironmentVariablePassworApiEmail: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariablePassworApiEmail]
+        EnvironmentVariableUrlApiEmail: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableUrlApiEmail]
+        EnvironmentVariableUserApiEmail: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableUserApiEmail]
+        EnvironmentVariableStateMachine: !GetAtt StepFunctionStacks.Outputs.MasivianWhatsAppBusinessStepFunctionArn
+        EnvironmentVariableQueueCampaignActivator: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignActivatorSqsUrl
+        EnvironmentVariableQueueCampaignCloser: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignCloserSqsUrl
+        EnvironmentVariableClosedDaysCampaign: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableClosedDaysCampaign]
+        EnvironmentVariableApiKeyGupshup: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableApiKeyGupshup]   
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, WebAppAccessId]
+        S3BucketLambdaCode: !FindInMap [!Ref DeployEnviroment, Lambda, S3BucketLambdaCode]
+        LambdaRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessLambdaRoleArn
+        MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaName]
+        MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaCodeKey]
+        MasivianWhatsAppBusinessAppClientConfigManagerLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessAppClientConfigManagerLambdaName]
+        MasivianWhatsAppBusinessAppClientConfigManagerLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessAppClientConfigManagerLambdaCodeKey]
+        MasivianWhatsAppBusinessClientProductActivatorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessClientProductActivatorLambdaName]
+        MasivianWhatsAppBusinessClientProductActivatorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessClientProductActivatorLambdaCodeKey]
+        MasivianWhatsAppBusinessHsmManagerLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessHsmManagerLambdaName]
+        MasivianWhatsAppBusinessHsmManagerLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessHsmManagerLambdaCodeKey] 
+        MasivianWhatsAppBusinessCampaignManagerLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignManagerLambdaName]
+        MasivianWhatsAppBusinessCampaignManagerLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessCampaignManagerLambdaCodeKey]
+        MasivianWhatsAppBusinessAuthorizerLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessAuthorizerLambdaName] 
+        MasivianWhatsAppBusinessAuthorizerLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessAuthorizerLambdaCodeKey]
+        MasivianWhatsAppBusinessOptinProcessorLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessOptinProcessorLambdaName]
+        MasivianWhatsAppBusinessOptinProcessorLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessOptinProcessorLambdaCodeKey]
+        EnvironmentVariableAuthPwd: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableAuthPwd]
+        EnvironmentVariableAuthUrl: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableAuthUrl]
+        EnvironmentVariableApiKey: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableApiKey]
+        EnvironmentVariableUrlOptin: !FindInMap [!Ref DeployEnviroment, Lambda, EnvironmentVariableUrlOptin]
+  LambdaEventBridgeStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaEventBridge.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/Lambda/LambdaResourcesMapping/MasivianWhatsappBusinessLambdaEventBridge.yml"]
+      Parameters:
+        EnvironmentVariableDbHost: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterAddress
+        EnvironmentVariableDbName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName]
+        EnvironmentVariableDbPassword: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        EnvironmentVariableDbPort: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterPort
+        EnvironmentVariableDbUser: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        EnvironmentVariableBucketReports: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessReportsBucketName]
+        EnvironmentVariableRoleRedshift: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessRedshiftRoleArn
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, WebAppAccessId]
+        S3BucketLambdaCode: !FindInMap [!Ref DeployEnviroment, Lambda, S3BucketLambdaCode]
+        LambdaRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessLambdaRoleArn
+        MasivianWhatsAppBusinessETLToS3EventDetailsLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToS3EventDetailsLambdaName]
+        MasivianWhatsAppBusinessETLToS3EventDetailsLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToS3EventDetailsLambdaCodeKey]
+        MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaName]
+        MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToSummaryEventDetailsLambdaCodeKey]
+        MasivianWhatsAppBusinessETLToS3SummaryLambdaName: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToS3SummaryLambdaName]
+        MasivianWhatsAppBusinessETLToS3SummaryLambdaCodeKey: !FindInMap [!Ref DeployEnviroment, Lambda, MasivianWhatsAppBusinessETLToS3SummaryLambdaCodeKey]
+        MasivianWhatsAppBusinessETLToS3EventDetailsRuleName: !FindInMap [!Ref DeployEnviroment, EventBridge, MasivianWhatsAppBusinessETLToS3EventDetailsRuleName]
+        MasivianWhatsAppBusinessETLToS3SummaryRuleName: !FindInMap [!Ref DeployEnviroment, EventBridge, MasivianWhatsAppBusinessETLToS3SummaryRuleName]
+        MasivianWhatsAppBusinessETLToSummaryRuleName: !FindInMap [!Ref DeployEnviroment, EventBridge, MasivianWhatsAppBusinessETLToSummaryRuleName]
+  LambdaEventSourceStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/Lambda/LambdaEventSourceMapping/MasivianWhatsappBusinessLambdaEventSource.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/Lambda/LambdaEventSourceMapping/MasivianWhatsappBusinessLambdaEventSource.yml"]
+      Parameters:
+        MessageTranslatorLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignTranslatorSqsArn
+        MasivianWhatsAppBusinessMessageTranslatorLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessMessageTranslatorLambdaArn
+        MessageSenderLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessMessageSenderSqsArn
+        MasivianWhatsAppBusinessMessageSenderLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessMessageSenderLambdaArn
+        RipleyIntegrationMessageSenderLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsArn
+        MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessRipleyIntegrationMessageSenderLambdaArn
+        RipleyIntegrationEventProcessorLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsArn
+        MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessRipleyIntegrationEventProcessorLambdaArn
+        EventNotifierLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessEventNotificationSqsArn
+        MasivianWhatsAppBusinessEventNotifierLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessEventNotifierLambdaArn
+        CampaignActivatorLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignActivatorSqsArn
+        MasivianWhatsAppBusinessCampaignActivatorLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessCampaignActivatorLambdaArn
+        EventProcessorLambdaActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessEventProcessorSqsArn
+        MasivianWhatsAppBusinessEventProcessorLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessEventProcessorLambdaArn
+        CampaignCloserActivatorArn: !GetAtt SQSStacks.Outputs.MasivianWhatsAppBusinessCampaignCloserSqsArn
+        MasivianWhatsAppBusinessCampaignCloserLambdaArn: !GetAtt LambdaSqsStacks.Outputs.MasivianWhatsAppBusinessCampaignCloserLambdaArn
+  APIGatewayStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessApiGateway.yml"]
+      Parameters:
+        MasivianWhatsappBusinessAPIGatewayName: !FindInMap [!Ref DeployEnviroment, APIGateway, MasivianWhatsappBusinessAPIGatewayName]
+        MasivianWhatsappBusinessAPIGatewayRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessApiGatewayRoleArn
+        MasivianWhatsAppBusinessEventProcessorQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventProcessorSqsName] 
+        MasivianWhatsAppBusinessMessageSenderQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessMessageSenderSqsName]  
+        MasivianWhatsAppBusinessAppClientConfigManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessAppClientConfigManagerLambdaArn
+        MasivianWhatsAppBusinessCampaingManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessCampaignManagerLambdaArn
+        MasivianWhatsAppBusinessClientProductActivatorLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessClientProductActivatorLambdaArn
+        MasivianWhatsAppBusinessAppHSMManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessHsmManagerLambdaArn 
+        MasivianWhatsAppBusinessAPIGatewayStage: !Ref DeployEnviroment
+        MasivianWhatsappBusinessRipleyIntegrationEventProcessorQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName] 
+  EventProcessorAPIGatewayStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessEventSourceApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessEventSourceApiGateway.yml"]
+      Parameters:
+        MasivianWhatsappBusinessEventProcessorAPIGatewayName: !FindInMap [!Ref DeployEnviroment, APIGateway, MasivianWhatsappBusinessEventProcessorAPIGatewayName]
+        MasivianWhatsappBusinessEventProcessorAPIGatewayRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessApiGatewayRoleArn
+        MasivianWhatsAppBusinessEventProcessorQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessEventProcessorSqsName] 
+        MasivianWhatsAppBusinessAPIGatewayStage: !Ref DeployEnviroment
+  RipleyIntegrationAPIGatewayStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessRipleyIntegrationApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessRipleyIntegrationApiGateway.yml"]
+      Parameters:
+        MasivianWhatsappBusinessRipleyIntegrationAPIGatewayName: !FindInMap [!Ref DeployEnviroment, APIGateway, MasivianWhatsappBusinessRipleyIntegrationEventProcessorAPIGatewayName]
+        MasivianWhatsappBusinessRipleyIntegrationAPIGatewayRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessApiGatewayRoleArn
+        MasivianWhatsappBusinessRipleyIntegrationMessageSenderQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessRipleyIntegrationMessageSenderSqsName]
+        MasivianWhatsappBusinessRipleyIntegrationAPIGatewayStage: !Ref DeployEnviroment
+        MasivianWhatsappBusinessRipleyIntegrationLambdaAuthorizerArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessRipleyIntegrationAuthorizerLambdaArn
+  RipleyIntegrationEventProcessorAPIGatewayStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessRipleyIntegrationEventProcessorApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessRipleyIntegrationEventProcessorApiGateway.yml"]
+      Parameters:
+        MasivianWhatsappBusinessRIEventProcessorAPIGatewayName: !FindInMap [!Ref DeployEnviroment, APIGateway, MasivianWhatsappBusinessRIEventProcessorAPIGatewayName]
+        MasivianWhatsappBusinessRIEventProcessorAPIGatewayRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessApiGatewayRoleArn
+        MasivianWhatsappBusinessRIEventProcessorAPIGatewayStage: !Ref DeployEnviroment
+        MasivianWhatsappBusinessRipleyIntegrationEventProcessorQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessRipleyIntegrationEventProcessorSqsName] 
+  APIGatewayCoreStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessCoreApiGateway.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/APIGateway/MasivianWhatsappBusinessCoreApiGateway.yml"]
+      Parameters:
+        MasivianWhatsappBusinessAPIGatewayName: !FindInMap [!Ref DeployEnviroment, APIGateway, MasivianWhatsappBusinessCoreAPIGatewayName]
+        MasivianWhatsappBusinessAPIGatewayRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessApiGatewayRoleArn
+        MasivianWhatsAppBusinessMessageSenderQueueName: !FindInMap [!Ref DeployEnviroment, SQS, MasivianWhatsAppBusinessMessageSenderSqsName]  
+        MasivianWhatsAppBusinessAppClientConfigManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessAppClientConfigManagerLambdaArn
+        MasivianWhatsAppBusinessCampaingManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessCampaignManagerLambdaArn
+        MasivianWhatsAppBusinessClientProductActivatorLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessClientProductActivatorLambdaArn
+        MasivianWhatsAppBusinessAppHSMManagerLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessHsmManagerLambdaArn
+        MasivianWhatsAppBusinessAPIGatewayStage: !Ref DeployEnviroment
+        MasivianWhatsappBusinessLambdaAuthorizerArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessAuthorizerLambdaArn
+        MasivianWhatsAppBusinessOptinProcessorLambdaArn: !GetAtt LambdaApiGatewayStacks.Outputs.MasivianWhatsAppBusinessOptinProcessorLambdaArn
+  StepFunctionStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/StepFunction/MasivianWhatsappBusinessStepFunction.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/StepFunction/MasivianWhatsappBusinessStepFunction.yml"]
+      Parameters:
+        MasivianWhatsAppBusinessStepFunctionName: !FindInMap [!Ref DeployEnviroment, StepFunction, MasivianWhatsAppBusinessStepFunctionName]
+        S3BucketStepFunctionCode: !FindInMap [!Ref DeployEnviroment, StepFunction, S3BucketStepFunctionCode]
+        MasivianWhatsAppBusinessStepFunctionCodeKey: !FindInMap [!Ref DeployEnviroment, StepFunction, MasivianWhatsAppBusinessStepFunctionCodeKey]
+        MasivianWhatsAppBusinessStepFunctionRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessStepFunctionRoleArn
+  LoadBalancerStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/LoadBalancer/MasivianWhatsappBusinessLoadBalancer.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/LoadBalancer/MasivianWhatsappBusinessLoadBalancer.yml"]
+      Parameters:
+        MasivianWhatsappBusinessLoadBalancerName: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessLoadBalancerName]
+        MasivianWhatsappBusinessTargetGroupName: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessTargetGroupName]
+        MasivianWhatsappBusinessTargetGroupHCIS: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessGroupHCIS] 
+        MasivianWhatsappBusinessTargetGroupHCTS: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessTargetGroupHCTS] 
+        MasivianWhatsappBusinessTargetGroupHTC: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessGroupHTC]
+        MasivianWhatsappBusinessTargetGroupPort: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessTargetGroupPort]
+        MasivianWhatsappBusinessTargetGroupUTC: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessTargetGroupUTC]
+        MasivianWhatsappBusinessLoadBalancerListenerPort: !FindInMap [!Ref DeployEnviroment, LoadBalancers, MasivianWhatsappBusinessLoadBalancerListenerPort]
+        MasivianWhatsappBusinessSubnetList: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Public1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Public2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Public3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Public4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Public5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Public6]
+        MasivianWhatsappBusinessSecurityGroupList: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, LoadBalancerWebAccessId]
+        VpcId: !FindInMap [!Ref DeployEnviroment, Vpc, Id]
+  ECRStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/ECS/ECR/MasivianWhatsappBusinessECR.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/ECS/ECR/MasivianWhatsappBusinessECR.yml"]
+      Parameters:
+        MasivianWhatsappBusinessECRName: !FindInMap [!Ref DeployEnviroment, ECR, MasivianWhatsappBusinessECRName]
+  CloudWatchLogGroupStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/CloudWatch/LogGroup/MasivianWhatsappBusinessCloudWatchLogGroup.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/CloudWatch/LogGroup/MasivianWhatsappBusinessCloudWatchLogGroup.yml"]
+      Parameters:
+        MasivianWhatsappBusinessECSLogGroupName: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessTaskDefinitionName]
+        MasivianWhatsappBusinessECSLogGroupRetentionInDays: !FindInMap [!Ref DeployEnviroment, CloudWatchLogGroups, MasivianWhatsappBusinessECSLogGroupRetentionInDays]
+  ECSClusterStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/ECS/Cluster/MasivianWhatsappBusinessECSCluster.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/ECS/Cluster/MasivianWhatsappBusinessECSCluster.yml"]
+      Parameters:
+        MasivianWhatsappBusinessECSClusterName: !FindInMap [!Ref DeployEnviroment, ECSCluster, MasivianWhatsappBusinessECSClusterName]
+        MasivianWhatsappBusinessCapacityProviderName: !FindInMap [!Ref DeployEnviroment, ECSCluster, MasivianWhatsappBusinessCapacityProviderName]
+        MasivianWhatsappBusinessLaunchConfigurationName: !FindInMap [!Ref DeployEnviroment, AutoScaling , MasivianWhatsappBusinessLaunchConfigurationName]
+        MasivianWhatsappBusinessAutoScalingGroupName: !FindInMap [!Ref DeployEnviroment, AutoScaling , MasivianWhatsappBusinessAutoScalingGroupName]
+        MasivianWhatsappBusinessECSAmiId: !FindInMap [!Ref DeployEnviroment, AMIS , MasivianWhatsappBusinessECSAmiId]
+        MasivianWhatsappBusinessEC2IAMRole: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessInstanceProfileArn
+        MasivianWhatsappBusinessSubnets: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroups: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, WebAppAccessId]
+  ECSTaskDefinitionStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/ECS/TaskDefinition/MasivianWhatsappBusinessECSTaskDefinition.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/ECS/TaskDefinition/MasivianWhatsappBusinessECSTaskDefinition.yml"]
+      Parameters:
+        MasivianWhatsappBusinessTaskDefinitionName: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessTaskDefinitionName]
+        MasivianWhatsappBusinessContainerDefinitionName: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessTaskDefinitionName]
+        MasivianWhatsappBusinessTaskRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessEcsTaskRoleArn 
+        MasivianWhatsappBusinessECRId: !FindInMap [!Ref DeployEnviroment, ECR, MasivianWhatsappBusinessECRUri] 
+        MasivianWhatsappBusinessTaskCPU: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessTaskCPU]
+        MasivianWhatsappBusinessTaskMemory: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessTaskMemory]
+        MasivianWhatsappBusinessAuthenticationPwd: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessAuthenticationPwd]
+        MasivianWhatsappBusinessAuthenticationUrl: !FindInMap [!Ref DeployEnviroment, ECSTaskDefinition, MasivianWhatsappBusinessAuthenticationUrl]
+        MasivianWhatsappBusinessBaseCDN: !GetAtt CloudFrontStack.Outputs.MasivianWhatsappBusinessReportCloudFrontName
+        MasivianWhatsappBusinessReportsBucket: !FindInMap [!Ref DeployEnviroment, S3, MasivianWhatsappBusinessCloudFrontReportsBucketName]
+        MasivianWhatsappBusinessDBHost: !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterAddress
+        MasivianWhatsappBusinessDBName: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName] 
+        MasivianWhatsappBusinessDBPass: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        MasivianWhatsappBusinessDBPort: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePort]
+        MasivianWhatsappBusinessDBUser: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        MasivianWhatsappBusinessDBRole: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessRedshiftRoleArn
+  ECSServiceStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/ECS/Service/MasivianWhatsappBusinessECSService.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/ECS/Service/MasivianWhatsappBusinessECSService.yml" ] 
+      Parameters:
+        MasivianWhatsappBusinessECSClusterId: !GetAtt ECSClusterStacks.Outputs.MasivianWhatsappBusinessECSClusterId
+        MasivianWhatsappBusinessECSServiceName: !FindInMap [!Ref DeployEnviroment, ECSService, MasivianWhatsappBusinessECSServiceName]
+        MasivianWhatsappBusinessTaskDefinitionARN: !GetAtt ECSTaskDefinitionStacks.Outputs.MasivianWhatsappBusinessTaskDefinitionId
+        MasivianWhatsappBusinessTargetGroupARN: !GetAtt LoadBalancerStacks.Outputs.MasivianWhatsappBusinessTargetGroupId
+        MasivianWhatsappBusinessSubnetList: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, Subnets, Private1]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private2]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private3]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private4]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private5]
+            - !FindInMap [!Ref DeployEnviroment, Subnets, Private6]
+        MasivianWhatsappBusinessSecurityGroupList: !Join
+          - ','
+          - - !FindInMap [!Ref DeployEnviroment, SecurityGroups, WebAppAccessId]
+        MasivianWhatsappBusinessScalingRoleArn: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessAutoScalingECSServiceRoleArn 
+        MasivianWhatsappBusinessScaleOutPolicyName: !FindInMap [!Ref DeployEnviroment, AutoScalingPolicies, MasivianWhatsappBusinessScaleOutPolicyName]
+        MasivianWhatsappBusinessScaleInPolicyName: !FindInMap [!Ref DeployEnviroment, AutoScalingPolicies, MasivianWhatsappBusinessScaleInPolicyName]
+        MasivianWhatsappBusinessECSClusterName: !FindInMap [!Ref DeployEnviroment, ECSCluster, MasivianWhatsappBusinessECSClusterName]
+  CloudWatchAlarmsStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/CloudWatch/Alarms/MasivianWhatsappBusinessCloudWatchAlarm.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/CloudWatch/Alarms/MasivianWhatsappBusinessCloudWatchAlarm.yml" ] 
+      Parameters:
+        MasivianWhatsappBusinessScaleOutAlarmName: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleOutAlarmName]
+        MasivianWhatsappBusinessScaleOutAlarmPeriod: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleOutAlarmPeriod]
+        MasivianWhatsappBusinessScaleOutAlarmThreshold: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleOutAlarmThreshold]
+        MasivianWhatsappBusinessScaleOutAlarmEvaluationPeriods: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleOutAlarmEvaluationPeriods]
+        MasivianWhatsappBusinessScaleInAlarmName: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleInAlarmName]
+        MasivianWhatsappBusinessScaleInAlarmPeriod: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleInAlarmPeriod]
+        MasivianWhatsappBusinessScaleInAlarmThreshold: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleInAlarmThreshold]
+        MasivianWhatsappBusinessScaleInAlarmEvaluationPeriods: !FindInMap [!Ref DeployEnviroment, CloudWatchAlarms, MasivianWhatsappBusinessScaleInAlarmEvaluationPeriods]
+        MasivianWhatsappBusinessECSASGOutPolicyId: !GetAtt ECSServiceStacks.Outputs.MasivianWhatsappBusinessECSASGOutPolicyId
+        MasivianWhatsappBusinessECSASGInPolicyId: !GetAtt ECSServiceStacks.Outputs.MasivianWhatsappBusinessECSASGInPolicyId
+        MasivianWhatsappBusinessECSServiceId: !FindInMap [!Ref DeployEnviroment, ECSService, MasivianWhatsappBusinessECSServiceName]
+        MasivianWhatsappBusinessASGOutPolicyId: !GetAtt ECSClusterStacks.Outputs.MasivianWhatsappBusinessASGOutPolicyId
+        MasivianWhatsappBusinessASGInPolicyId: !GetAtt ECSClusterStacks.Outputs.MasivianWhatsappBusinessASGInPolicyId
+        MasivianWhatsappBusinessECSClusterName: !FindInMap [!Ref DeployEnviroment, ECSCluster, MasivianWhatsappBusinessECSClusterName]
+  WAFStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/WAF/MasivianWhatsappBusinessWAF.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/WAF/MasivianWhatsappBusinessWAF.yml" ] 
+      Parameters:
+        MasivianWhatsAppBusinessWAFName: !FindInMap [!Ref DeployEnviroment, WAF, MasivianWhatsAppBusinessWAFName]
+        MasivianWhatsAppBusinessWafWebAclName: !FindInMap [!Ref DeployEnviroment, WAF, MasivianWhatsAppBusinessWafWebAclName]
+        MasivianWhatsAppBusinessApiGatewayEventProcessorArn: !Join [ "", [ "arn:aws:apigateway:", !Ref "AWS::Region" , "::/restapis/", !GetAtt EventProcessorAPIGatewayStacks.Outputs.MasivianWhatsappBusinessEventSourceAPIGatewayId, "/stages/", !Ref DeployEnviroment ], ] 
+  FirehoseStacks:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TimeoutInMinutes: '60'
+      TemplateURL: !If [UrlS3, "https://cf-masivian-whatsapp-business-labs.s3.amazonaws.com/KinesisFirehose/MasivianWhatsappBusinessKinesisFirehose.yml", "https://cf-masivian-whatsapp-business-prod.s3.amazonaws.com/KinesisFirehose/MasivianWhatsappBusinessKinesisFirehose.yml" ]
+      Parameters:
+        MasivianWhatsAppBusinessDeliveryStreamRedshiftEndpoint: !Join [ "", [ "jdbc:redshift://", !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterAddress, ":", !GetAtt RedshiftStacks.Outputs.MasivianWhatsAppBusinessRedshiftClusterPort, "/", !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseName] ] ] 
+        MasivianWhatsAppBusinessDeliveryStreamRedshiftPassword: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabasePassword]
+        MasivianWhatsAppBusinessDeliveryStreamRedshiftUsername: !FindInMap [!Ref DeployEnviroment, Redshift, MasivianWhatsAppBusinessRedshiftDatabaseUser]
+        MasivianWhatsAppBusinessDeliveryStreamFirehoseRole: !GetAtt IAMStacks.Outputs.MasivianWhatsAppBusinessFirehoseRoleArn
+        MasivianWhatsAppBusinessDeliveryStreamBucket: !GetAtt S3tacks.Outputs.MasivianWhatsappBusinessFirehoseBucketArn
+        MasivianWhatsAppBusinessDeliveryStreamName: !FindInMap [!Ref DeployEnviroment, Firehose, MasivianWhatsAppBusinessDeliveryStreamName]
+        MasivianWhatsAppBusinessDeliveryStreamCopyOptions: !FindInMap [!Ref DeployEnviroment, Firehose, MasivianWhatsAppBusinessDeliveryStreamCopyOptions]
+        MasivianWhatsAppBusinessDeliveryStreamRedshiftTable: !FindInMap [!Ref DeployEnviroment, Firehose, MasivianWhatsAppBusinessDeliveryStreamRedshiftTable]
+        MasivianWhatsAppBusinessDeliveryStreamPrefixS3: !FindInMap [!Ref DeployEnviroment, Firehose, MasivianWhatsAppBusinessDeliveryStreamPrefixS3]
