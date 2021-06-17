@@ -34,7 +34,7 @@ steps:
     projectName: 'mercadolibre-dna'
     extraProperties: |
       sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
-      sonar.coverage.exclusions=Entities/**,Repositories/**,Utils/**
+      sonar.coverage.exclusions=Entities/**,Repositories/**,Utils/**,MercadoLibre.Mutant.Dna.Api/**
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
