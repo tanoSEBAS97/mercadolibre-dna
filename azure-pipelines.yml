@@ -1,0 +1,56 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+- development
+
+pool:
+  vmImage: 'windows-latest'
+  demands:
+    - msbuild
+    - visualstudio
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'SonarCloud'
+    organization: 'mercadolibre-dna'
+    scannerMode: 'MSBuild'
+    projectKey: 'mercadolibre-dna'
+    projectName: 'mercadolibre-dna'
+    extraProperties: |
+      sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
+      sonar.coverage.exclusions=Entities/**,Repositories/**,Utils/**,MercadoLibre.Mutant.Dna.Api/**
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration Release'
+
+- task: DotNetCoreCLI@2
+  displayName: Run Tests
+  inputs:
+    command: 'test'
+    projects: '**/*Test/*.csproj'
+    arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=opencover'
+
+- task: SonarCloudAnalyze@1
+
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
