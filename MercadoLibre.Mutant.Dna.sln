@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MercadoLibre.Mutant.Dna.Api", "MercadoLibre.Mutant.Dna.Api\MercadoLibre.Mutant.Dna.Api.csproj", "{9A4C4A74-A51B-47C1-A6BA-77D1DDE1DDC3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MercadoLibre.Mutant.Dna.Core", "MercadoLibre.Mutant.Dna.Core\MercadoLibre.Mutant.Dna.Core.csproj", "{BF650BB8-1529-4732-B130-5EC887FBF375}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MercadoLibre.Mutant.Dna.Test", "MercadoLibre.Mutant.Dna.Test\MercadoLibre.Mutant.Dna.Test.csproj", "{AF9D9AEC-5907-434D-AD76-1A92AD23AFB8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A4C4A74-A51B-47C1-A6BA-77D1DDE1DDC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A4C4A74-A51B-47C1-A6BA-77D1DDE1DDC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A4C4A74-A51B-47C1-A6BA-77D1DDE1DDC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A4C4A74-A51B-47C1-A6BA-77D1DDE1DDC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF650BB8-1529-4732-B130-5EC887FBF375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF650BB8-1529-4732-B130-5EC887FBF375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF650BB8-1529-4732-B130-5EC887FBF375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF650BB8-1529-4732-B130-5EC887FBF375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF9D9AEC-5907-434D-AD76-1A92AD23AFB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF9D9AEC-5907-434D-AD76-1A92AD23AFB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF9D9AEC-5907-434D-AD76-1A92AD23AFB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF9D9AEC-5907-434D-AD76-1A92AD23AFB8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E4E25D66-DBF4-4C3D-8D4E-71645A8BAD8C}
+	EndGlobalSection
+EndGlobal
