@@ -37,8 +37,14 @@ Acontinuacion encuentre la coleccion en postman para mas facilidad con los dos e
 # Como ejecutar el proyecto
 
 1 Localizarse en la raiz del proyecto 
-2 Construir la imagen docker, para eso puede ejecutar el siguiente comando docker build --no-cache -f MercadoLibre.Mutant.Dna.Api\Dockerfile -t mercadolibre-dna .
-3 Correr un contendor de la imagen, para esto puede usar el puerto 80 de la maquina, ejecute el siguiente comando docker run -p 80:80 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXX -e AWS_DEFAULT_REGION=US-EAST-1 mercadolibre-dna:latest
+
+2 Construir la imagen docker, para eso puede ejecutar el siguiente comando:
+
+docker build --no-cache -f MercadoLibre.Mutant.Dna.Api\Dockerfile -t mercadolibre-dna .
+
+3 Correr un contendor de la imagen, para esto puede usar el puerto 80 de la maquina, ejecute el siguiente comando:
+
+docker run -p 80:80 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXX -e AWS_DEFAULT_REGION=US-EAST-1 mercadolibre-dna:latest
 
 Se pasan las variables de entorno de AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY para que el contenedor se pueda conectar a aws dynamodb de forma local, sin embargo, estas no son necesarias en el ambiente de aws cuando ya esta desplegado el componente. Estas llaves se enviaran via correo a la reclutadora.
 
