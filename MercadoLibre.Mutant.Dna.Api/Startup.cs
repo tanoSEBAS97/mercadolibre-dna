@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.DynamoDBv2;
 using MercadoLibre.Mutant.Dna.Api.Exceptions;
 using MercadoLibre.Mutant.Dna.Core.Repositories;
@@ -14,11 +15,12 @@ namespace MercadoLibre.Mutant.Dna.Api
 {
     public class Startup
     {
+        private RegionEndpoint regionEndpoint = RegionEndpoint.USEast1;
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IAmazonDynamoDB>(x => new AmazonDynamoDBClient());
+            services.AddScoped<IAmazonDynamoDB>(x => new AmazonDynamoDBClient(regionEndpoint));
             services.AddControllers();
             services.AddApiVersioning(config =>
             {

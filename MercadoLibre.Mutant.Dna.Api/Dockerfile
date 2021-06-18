@@ -15,4 +15,3 @@ WORKDIR /webapp
 COPY --from=build /webapp/out .
 ENTRYPOINT ["dotnet", "MercadoLibre.Mutant.Dna.Api.dll"]
 
-# docker build --no-cache -f Masiv.AuthorizationManager.Api\Dockerfile -t authorization-manager-img .
