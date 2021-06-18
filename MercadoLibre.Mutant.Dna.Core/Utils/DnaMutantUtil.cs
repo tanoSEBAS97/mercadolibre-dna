@@ -12,18 +12,18 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
         private const int LeftDiagonalPosition = 1;
         private const int HorizontalPosition = 2;
         private const int VerticalPosition = 3;
+        private static int size;
 
         public static bool IsMutant(String[] dna)
         {
             char[][] matrix = dna.Select(item => item.ToArray()).ToArray();
-            return IsMutant(matrix);
+            size = dna.GetLength(0);
+            return size < NumberOfOcurrences ? false : IsMutant(matrix);
         }
 
         private static bool IsMutant(char[][] dna)
         {
             int total = 0;
-            int size = dna.GetLength(0);
-
             List<Action> actions = new List<Action>();
             int[] results = new int[NumberOfOcurrences];
 
@@ -31,6 +31,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
             {
                 for (int j = 0; j < size; j++)
                 {
+                    //Threads/concurrency of posibble ways
                     Action righDiagonalAction = () => { };
                     Action horizontalAction = () => { };
                     Action verticalAction = () => { };
@@ -41,7 +42,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                         horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
                         verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                     }
-                    else if (i == dna.Length - 1)
+                    else if (i == size - 1)
                     {
                         horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
                     }
@@ -57,10 +58,12 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                         verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                         leftDiagonalAction = () => results[LeftDiagonalPosition] = LeftDiagonal(dna, i, j, dna[i][j], 0);
                     }
+                    //multiple threads to improve the performance
                     actions.Add(righDiagonalAction);
                     actions.Add(horizontalAction);
                     actions.Add(verticalAction);
                     actions.Add(leftDiagonalAction);
+                    //run 4 threads in the same time
                     Parallel.Invoke(actions.ToArray());
                     actions.Clear();
                     total = total + results.Sum();
