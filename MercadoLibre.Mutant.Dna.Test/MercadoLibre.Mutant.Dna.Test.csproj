@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="JsonFiles\FullValidDna.json" />
     <None Remove="JsonFiles\InvalidDna.json" />
     <None Remove="JsonFiles\ValidDna.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="JsonFiles\InvalidDna.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="JsonFiles\FullValidDna.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="JsonFiles\ValidDna.json">

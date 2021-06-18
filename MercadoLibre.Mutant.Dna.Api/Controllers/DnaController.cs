@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MercadoLibre.Mutant.Dna.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
     public class DnaController : ControllerBase

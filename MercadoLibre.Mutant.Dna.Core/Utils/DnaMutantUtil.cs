@@ -12,18 +12,18 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
         private const int LeftDiagonalPosition = 1;
         private const int HorizontalPosition = 2;
         private const int VerticalPosition = 3;
+        private static int size;
 
         public static bool IsMutant(String[] dna)
         {
             char[][] matrix = dna.Select(item => item.ToArray()).ToArray();
-            return IsMutant(matrix);
+            size = dna.GetLength(0);
+            return size < NumberOfOcurrences ? false : IsMutant(matrix);
         }
 
         private static bool IsMutant(char[][] dna)
         {
             int total = 0;
-            int size = dna.GetLength(0);
-
             List<Action> actions = new List<Action>();
             int[] results = new int[NumberOfOcurrences];
 
@@ -31,39 +31,41 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
             {
                 for (int j = 0; j < size; j++)
                 {
+                    //Threads/concurrency of posibble path
                     Action righDiagonalAction = () => { };
                     Action horizontalAction = () => { };
                     Action verticalAction = () => { };
                     Action leftDiagonalAction = () => { };
-                    if (i == 0 && j == 0)
+                    //horizontal path
+                    if (j + NumberOfOcurrences <= size)
+                    {
+                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
+                    }
+                    //vertical path
+                    if (i + NumberOfOcurrences <= size)
+                    {
+                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
+                    }
+                    //righ diagonal path
+                    if (j + NumberOfOcurrences <= size && i + NumberOfOcurrences <= size)
                     {
                         righDiagonalAction = () => results[RightDiagonalPosition] = RighDiagonal(dna, i, j, dna[i][j], 0);
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                     }
-                    else if (i == dna.Length - 1)
+                    //left diagonal path
+                    if (j - NumberOfOcurrences >= -1 && i + NumberOfOcurrences <= size)
                     {
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                    }
-                    else if (j == size - 1 && i == size - 1)
-                    {
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                         leftDiagonalAction = () => results[LeftDiagonalPosition] = LeftDiagonal(dna, i, j, dna[i][j], 0);
                     }
-                    else
-                    {
-                        righDiagonalAction = () => results[RightDiagonalPosition] = RighDiagonal(dna, i, j, dna[i][j], 0);
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
-                        leftDiagonalAction = () => results[LeftDiagonalPosition] = LeftDiagonal(dna, i, j, dna[i][j], 0);
-                    }
+                    //multiple threads to improve the performance
                     actions.Add(righDiagonalAction);
                     actions.Add(horizontalAction);
                     actions.Add(verticalAction);
                     actions.Add(leftDiagonalAction);
+                    //run 4 threads in the same time
                     Parallel.Invoke(actions.ToArray());
                     actions.Clear();
-                    total = total + results.Sum();
+                    total += results.Sum();
+                    Array.Clear(results, 0, results.Length);
                     if (total > 1)
                     {
                         return true;
@@ -82,11 +84,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j + 1);
-                if (canContinue)
-                {
-                    return RighDiagonal(dna, i + 1, j + 1, value, ocurrences);
-                }
+                return RighDiagonal(dna, i + 1, j + 1, value, ocurrences);
             }
             return 0;
         }
@@ -100,11 +98,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j - 1);
-                if (canContinue)
-                {
-                    return LeftDiagonal(dna, i + 1, j - 1, value, ocurrences);
-                }
+                return LeftDiagonal(dna, i + 1, j - 1, value, ocurrences);
             }
             return 0;
         }
@@ -118,17 +112,13 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i, j + 1);
-                if (canContinue)
-                {
-                    return Horizontal(dna, i, j + 1, value, ocurrences);
-                }
+                return Horizontal(dna, i, j + 1, value, ocurrences);
             }
             return 0;
         }
+
         private static int Vertical(char[][] dna, int i, int j, char value, int ocurrences)
         {
-
             if (dna[i][j] == value)
             {
                 ocurrences = ocurrences + 1;
@@ -136,24 +126,9 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j);
-                if (canContinue)
-                {
-                    return Vertical(dna, i + 1, j, value, ocurrences);
-                }
+                return Vertical(dna, i + 1, j, value, ocurrences);
             }
             return 0;
-        }
-
-        private static bool ValidateNextPosiccion(char[][] dna, int i, int j)
-        {
-            int size = dna.GetLength(0);
-
-            if (i < size && j < size && i >= 0 && j >= 0)
-            {
-                return true;
-            }
-            return false;
         }
     }
 }
