@@ -20,16 +20,16 @@ namespace MercadoLibre.Mutant.Dna.Core.Repositories
             _amazonDynamoDB = amazonDynamoDB;
         }
 
-        public async Task Add(DnaResult newEntity)
+        public async Task Add(DnaResult dnaResult)
         {
             PutItemRequest putItemRequest = new PutItemRequest
             {
                 TableName = TableName,
                 Item = new Dictionary<string, AttributeValue>()
                 {
-                    {DnaResultId,new AttributeValue{ S=newEntity.DnaResultId.ToString()}  },
-                    {DnaContent,new AttributeValue{ S=string.Join(",",newEntity.DnaContent)} },
-                    {IsMutant,new AttributeValue{ BOOL=newEntity.IsMutant} }
+                    {DnaResultId,new AttributeValue{ S=dnaResult.DnaResultId.ToString()}  },
+                    {DnaContent,new AttributeValue{ S=string.Join(",",dnaResult.DnaContent)} },
+                    {IsMutant,new AttributeValue{ BOOL=dnaResult.IsMutant} }
                 }
             };
             await _amazonDynamoDB.PutItemAsync(putItemRequest);
