@@ -31,31 +31,29 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
             {
                 for (int j = 0; j < size; j++)
                 {
-                    //Threads/concurrency of posibble ways
+                    //Threads/concurrency of posibble path
                     Action righDiagonalAction = () => { };
                     Action horizontalAction = () => { };
                     Action verticalAction = () => { };
                     Action leftDiagonalAction = () => { };
-                    if (i == 0 && j == 0)
+                    //horizontal path
+                    if (j + NumberOfOcurrences <= size)
+                    {
+                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
+                    }
+                    //vertical path
+                    if (i + NumberOfOcurrences <= size)
+                    {
+                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
+                    }
+                    //righ diagonal path
+                    if (j + NumberOfOcurrences <= size && i + NumberOfOcurrences <= size)
                     {
                         righDiagonalAction = () => results[RightDiagonalPosition] = RighDiagonal(dna, i, j, dna[i][j], 0);
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                     }
-                    else if (i == size - 1)
+                    //left diagonal path
+                    if (j - NumberOfOcurrences >= -1 && i + NumberOfOcurrences <= size)
                     {
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                    }
-                    else if (j == size - 1 && i == size - 1)
-                    {
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
-                        leftDiagonalAction = () => results[LeftDiagonalPosition] = LeftDiagonal(dna, i, j, dna[i][j], 0);
-                    }
-                    else
-                    {
-                        righDiagonalAction = () => results[RightDiagonalPosition] = RighDiagonal(dna, i, j, dna[i][j], 0);
-                        horizontalAction = () => results[HorizontalPosition] = Horizontal(dna, i, j, dna[i][j], 0);
-                        verticalAction = () => results[VerticalPosition] = Vertical(dna, i, j, dna[i][j], 0);
                         leftDiagonalAction = () => results[LeftDiagonalPosition] = LeftDiagonal(dna, i, j, dna[i][j], 0);
                     }
                     //multiple threads to improve the performance
@@ -66,7 +64,8 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                     //run 4 threads in the same time
                     Parallel.Invoke(actions.ToArray());
                     actions.Clear();
-                    total = total + results.Sum();
+                    total += results.Sum();
+                    Array.Clear(results, 0, results.Length);
                     if (total > 1)
                     {
                         return true;
@@ -85,11 +84,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j + 1);
-                if (canContinue)
-                {
-                    return RighDiagonal(dna, i + 1, j + 1, value, ocurrences);
-                }
+                return RighDiagonal(dna, i + 1, j + 1, value, ocurrences);
             }
             return 0;
         }
@@ -103,11 +98,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j - 1);
-                if (canContinue)
-                {
-                    return LeftDiagonal(dna, i + 1, j - 1, value, ocurrences);
-                }
+                return LeftDiagonal(dna, i + 1, j - 1, value, ocurrences);
             }
             return 0;
         }
@@ -121,17 +112,12 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i, j + 1);
-                if (canContinue)
-                {
-                    return Horizontal(dna, i, j + 1, value, ocurrences);
-                }
+                return Horizontal(dna, i, j + 1, value, ocurrences);
             }
             return 0;
         }
         private static int Vertical(char[][] dna, int i, int j, char value, int ocurrences)
         {
-
             if (dna[i][j] == value)
             {
                 ocurrences = ocurrences + 1;
@@ -139,24 +125,11 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
                 {
                     return 1;
                 }
-                bool canContinue = ValidateNextPosiccion(dna, i + 1, j);
-                if (canContinue)
-                {
-                    return Vertical(dna, i + 1, j, value, ocurrences);
-                }
+                return Vertical(dna, i + 1, j, value, ocurrences);
             }
             return 0;
         }
 
-        private static bool ValidateNextPosiccion(char[][] dna, int i, int j)
-        {
-            int size = dna.GetLength(0);
 
-            if (i < size && j < size && i >= 0 && j >= 0)
-            {
-                return true;
-            }
-            return false;
-        }
     }
 }
