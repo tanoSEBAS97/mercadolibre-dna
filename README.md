@@ -1,10 +1,6 @@
 # Mercadolibre-ADN Challenge 
 
-En esta seccion se documenta la forma en que se abordo el reto
-
-# Algoritmo
-
-Se penso inicialmente en usar un algoritmo optimo para recorrer la matriz con el adn, como por ejemplo depth-first-search ó breadth-first-search, sin embargo estos algoritmos requieren un punto de inicio y a partir de alli se hace la busqueda, por lo tanto se requiere recorrer de igual forma la matriz.
+En esta seccion se documenta la solucion planteada al reto.
 
 
 # Arquitectura planteada en la nube de AWS
@@ -26,6 +22,41 @@ A continuacion una imagen donde se ilustra la integracion.
 En el siguiente enlace puede accder a ver los resultados: https://sonarcloud.io/dashboard?id=mercadolibre-dna
 
 # Consumo de la api
+
+La url para consumir el api es la siguiente:
+
+http://mercadolibre-dna-lb-1742491657.us-east-1.elb.amazonaws.com/api/v1.0/dna/
+
+
+Notese que el api esta versionada pensando en la mantenibilidad.
+
+Acontinuacion encuentre la coleccion en postman para mas facilidad con los dos endpoints /mutant y /stats
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/b785258a82339ed75d5b)
+
+# Como ejecutar el proyecto
+
+1 Localizarse en la raiz del proyecto 
+
+2 Construir la imagen docker, para eso puede ejecutar el siguiente comando:
+
+docker build --no-cache -f MercadoLibre.Mutant.Dna.Api\Dockerfile -t mercadolibre-dna .
+
+3 Correr un contendor de la imagen, para esto puede usar el puerto 80 de la maquina, ejecute el siguiente comando:
+
+docker run -p 80:80 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXX -e AWS_DEFAULT_REGION=US-EAST-1 mercadolibre-dna:latest
+
+Se pasan las variables de entorno de AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY para que el contenedor se pueda conectar a aws dynamodb de forma local, sin embargo, estas no son necesarias en el ambiente de aws cuando ya esta desplegado el componente. Estas llaves se enviaran via correo a la reclutadora.
+
+
+
+
+
+
+
+
+
+
 
 
 
