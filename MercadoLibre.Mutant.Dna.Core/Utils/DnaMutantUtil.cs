@@ -116,6 +116,7 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
             }
             return 0;
         }
+
         private static int Vertical(char[][] dna, int i, int j, char value, int ocurrences)
         {
             if (dna[i][j] == value)
@@ -129,7 +130,5 @@ namespace MercadoLibre.Mutant.Dna.Core.Util
             }
             return 0;
         }
-
-
     }
 }
