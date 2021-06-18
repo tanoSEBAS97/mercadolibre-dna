@@ -28,7 +28,7 @@ La url para consumir el api es la siguiente:
 http://mercadolibre-dna-lb-1742491657.us-east-1.elb.amazonaws.com/api/v1.0/dna/
 
 
-Notese que el api esta versionada pensando en la escalabilidad.
+Notese que el api esta versionada pensando en la mantenibilidad.
 
 Acontinuacion encuentre la coleccion en postman para mas facilidad con los dos endpoints /mutant y /stats
 
