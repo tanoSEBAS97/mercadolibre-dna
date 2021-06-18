@@ -15,12 +15,21 @@ namespace MercadoLibre.Mutant.Dna.Api.Exceptions
             {
                 appError.Run(async context =>
                 {
+                    ErrorDetails errorDetails;
                     context.Response.ContentType = "application/json";
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                     var exception = contextFeature.Error;
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    if (exception.Message.Contains("Index"))
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        errorDetails = new ErrorDetails("Array is not well formed");
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        errorDetails = new ErrorDetails("Internal Server error");
+                    }
                     Console.WriteLine(exception.Message);
-                    ErrorDetails errorDetails = new ErrorDetails("Internal Server error");
                     var json = JsonConvert.SerializeObject(errorDetails);
                     await context.Response.WriteAsync(json);
                 });
